@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\File\File;
@@ -32,6 +34,14 @@ class Post
 
     #[ORM\Column(nullable: true)]
     private ?string $imageName = null;
+
+    #[ORM\OneToMany(mappedBy: 'post', targetEntity: Liked::class, orphanRemoval: true)]
+    private Collection $likeds;
+
+    public function __construct()
+    {
+        $this->likeds = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -99,6 +109,36 @@ class Post
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Liked>
+     */
+    public function getLikeds(): Collection
+    {
+        return $this->likeds;
+    }
+
+    public function addLiked(Liked $liked): static
+    {
+        if (!$this->likeds->contains($liked)) {
+            $this->likeds->add($liked);
+            $liked->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLiked(Liked $liked): static
+    {
+        if ($this->likeds->removeElement($liked)) {
+            // set the owning side to null (unless already changed)
+            if ($liked->getPost() === $this) {
+                $liked->setPost(null);
+            }
+        }
 
         return $this;
     }
