@@ -20,7 +20,8 @@
         "symfony/security-bundle": "7.0.*",
         "symfony/serializer": "7.0.*",
         "symfony/validator": "7.0.*",
-        "symfony/yaml": "7.0.*"
+        "symfony/yaml": "7.0.*",
+        "vich/uploader-bundle": "^2.3"
     },
     "config": {
         "allow-plugins": {
@@ -67,7 +68,7 @@
     },
     "extra": {
         "symfony": {
-            "allow-contrib": false,
+            "allow-contrib": true,
             "require": "7.0.*",
             "docker": true
         }
