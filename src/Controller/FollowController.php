@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 
@@ -23,6 +22,9 @@ class FollowController extends AbstractController
         $follow = $em->getRepository(Follow::class)->findOneBy(['follower' => $this->getUser(), 'following' => $user]);
         if ($follow) {
             return new JsonResponse(['status' => 'error', 'message' => 'You are already following this user'], 400);
+        }
+        if ($user === $this->getUser()) {
+            return new JsonResponse(['status' => 'error', 'message' => 'You can\'t follow yourself'], 400);
         }
         try {
             $follow = new Follow();
