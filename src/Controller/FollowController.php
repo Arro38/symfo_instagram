@@ -20,6 +20,10 @@ class FollowController extends AbstractController
     #[Route('/add/{id}', name: 'app_follow', methods: ['POST'])]
     public function add(EntityManagerInterface $em, User $user): JsonResponse
     {
+        $follow = $em->getRepository(Follow::class)->findOneBy(['follower' => $this->getUser(), 'following' => $user]);
+        if ($follow) {
+            return new JsonResponse(['status' => 'error', 'message' => 'You are already following this user'], 400);
+        }
         try {
             $follow = new Follow();
             $follower = $this->getUser();
@@ -40,6 +44,9 @@ class FollowController extends AbstractController
         try {
             $follower = $this->getUser();
             $follow = $em->getRepository(Follow::class)->findOneBy(['follower' => $follower, 'following' => $user]);
+            if (!$follow) {
+                return new JsonResponse(['status' => 'error', 'message' => 'You are not following this user'], 400);
+            }
             $em->remove($follow);
             $em->flush();
             return new JsonResponse(['status' => 'success', 'message' => 'Unfollowed successfully'], 200);
