@@ -50,7 +50,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->posts = new ArrayCollection();
     }
 
-
+    public function getImageUrl(): ?string
+    {
+        return '/images/profiles/' . $this->getImageName();
+    }
 
     public function getId(): ?int
     {

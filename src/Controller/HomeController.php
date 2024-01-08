@@ -30,7 +30,7 @@ class HomeController extends AbstractController
         }
         $posts = $em->getRepository(Post::class)->findBy(['createdBy' => $followings_ids], ['createdAt' => 'DESC']);
         $serializer = new Serializer([new ObjectNormalizer()]);
-        $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageName', 'createdBy' => ['id', 'email', 'profilePicture'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'profilePicture']]]]);
+        $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageUrl', 'createdBy' => ['id', 'email', 'imageUrl'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl']]]]);
         return new JsonResponse($jsonPosts, JsonResponse::HTTP_OK);
 
     }
@@ -44,7 +44,7 @@ class HomeController extends AbstractController
         }
         $posts = $em->getRepository(Post::class)->findBy(['createdBy' => $user->getId()], ['createdAt' => 'DESC']);
         $serializer = new Serializer([new ObjectNormalizer()]);
-        $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageName', 'createdBy' => ['id', 'email', 'profilePicture'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'profilePicture']]]]);
+        $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageUrl', 'createdBy' => ['id', 'email', 'imageUrl'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl']]]]);
         return new JsonResponse($jsonPosts, JsonResponse::HTTP_OK);
 
     }
@@ -54,7 +54,7 @@ class HomeController extends AbstractController
     {
         $user = $this->getUser();
         $serializer = new Serializer([new ObjectNormalizer()]);
-        $jsonUser = $serializer->normalize($user, 'json', ['attributes' => ['id', 'email', 'profilePicture', 'username']]);
+        $jsonUser = $serializer->normalize($user, 'json', ['attributes' => ['id', 'email', 'imageUrl', 'username']]);
         return new JsonResponse($jsonUser, JsonResponse::HTTP_OK);
     }
 }
