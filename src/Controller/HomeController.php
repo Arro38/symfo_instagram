@@ -8,7 +8,6 @@ use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -48,5 +47,14 @@ class HomeController extends AbstractController
         $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageName', 'createdBy' => ['id', 'email', 'profilePicture'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'profilePicture']]]]);
         return new JsonResponse($jsonPosts, JsonResponse::HTTP_OK);
 
+    }
+
+    #[Route('me', name: "app_me", methods: ['GET'])]
+    public function me(EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        $serializer = new Serializer([new ObjectNormalizer()]);
+        $jsonUser = $serializer->normalize($user, 'json', ['attributes' => ['id', 'email', 'profilePicture', 'username']]);
+        return new JsonResponse($jsonUser, JsonResponse::HTTP_OK);
     }
 }
