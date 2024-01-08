@@ -49,7 +49,7 @@ class HomeController extends AbstractController
 
     }
 
-    #[Route('me', name: "app_me", methods: ['GET'])]
+    #[Route('/me', name: "app_me", methods: ['GET'])]
     public function me(EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
