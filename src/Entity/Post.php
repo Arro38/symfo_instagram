@@ -81,10 +81,16 @@ class Post
     {
         return $this->imageName;
     }
+
+    public function getImageUrl(): ?string
+    {
+        return '/images/posts/' . $this->getImageName();
+    }
     public function getDescription(): ?string
     {
         return $this->description;
     }
+
 
     public function setDescription(?string $description): static
     {
