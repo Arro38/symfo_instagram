@@ -57,4 +57,19 @@ class HomeController extends AbstractController
         $jsonUser = $serializer->normalize($user, 'json', ['attributes' => ['id', 'email', 'imageUrl', 'username']]);
         return new JsonResponse($jsonUser, JsonResponse::HTTP_OK);
     }
+
+    #[Route('/users', name: "app_get_users", methods: ['GET'])]
+    public function getUsers(EntityManagerInterface $em): JsonResponse
+    {
+        $users = $em->getRepository(User::class)->findAll();
+        $me = $this->getUser();
+        foreach ($users as $key => $user) {
+            if ($user->getId() == $me->getId()) {
+                unset($users[$key]);
+            }
+        }
+        $serializer = new Serializer([new ObjectNormalizer()]);
+        $jsonUsers = $serializer->normalize($users, 'json', ['attributes' => ['id', 'email', 'imageUrl', 'username']]);
+        return new JsonResponse($jsonUsers, JsonResponse::HTTP_OK);
+    }
 }
