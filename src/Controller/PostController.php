@@ -8,6 +8,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[Route('/api/post')]
 class PostController extends AbstractController
@@ -30,7 +32,10 @@ class PostController extends AbstractController
             $post->setCreatedAt(new \DateTimeImmutable());
             $em->persist($post);
             $em->flush();
-            return new JsonResponse(null, JsonResponse::HTTP_OK);
+            $serializer = new Serializer([new ObjectNormalizer()]);
+            // $jsonComment= $serializer->normalize($post, 'json', ['attributes' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl', 'username']]]);
+            $jsonPost = $serializer->normalize($post, 'json', ['attributes' => ['id', 'description', 'imageUrl', 'createdAt', 'createdBy' => ['id', 'email', 'imageUrl', 'username']]]);
+            return new JsonResponse($jsonPost, JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             // remove uploaded file if error
             if ($post->getImageName() !== null) {
