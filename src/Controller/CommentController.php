@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 #[Route('/api/comment')]
 class CommentController extends AbstractController
@@ -42,7 +44,9 @@ class CommentController extends AbstractController
             $comment->setCreatedAt(new \DateTimeImmutable());
             $em->persist($comment);
             $em->flush();
-            return new JsonResponse(null, JsonResponse::HTTP_OK);
+            $serializer = new Serializer([new ObjectNormalizer()]);
+            $jsonComment = $serializer->normalize($comment, 'json', ['attributes' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl', 'username']]]);
+            return new JsonResponse($jsonComment, JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse($e->getMessage(), JsonResponse::HTTP_BAD_REQUEST);
         }
@@ -74,7 +78,9 @@ class CommentController extends AbstractController
             $comment->setContent($content);
             $em->persist($comment);
             $em->flush();
-            return new JsonResponse(null, JsonResponse::HTTP_OK);
+            $serializer = new Serializer([new ObjectNormalizer()]);
+            $jsonComment = $serializer->normalize($comment, 'json', ['attributes' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl', 'username']]]);
+            return new JsonResponse($jsonComment, JsonResponse::HTTP_OK);
         } catch (\Exception $e) {
             return new JsonResponse(null, JsonResponse::HTTP_BAD_REQUEST);
         }
