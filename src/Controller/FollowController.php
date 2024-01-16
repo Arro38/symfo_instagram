@@ -70,7 +70,7 @@ class FollowController extends AbstractController
             }, $jsonFollowers);
 
             // $jsonFollowers = $serializer->serialize($followers, 'json');
-            return new JsonResponse(['status' => 'success', 'followers' => $jsonFollowers], 200);
+            return new JsonResponse($jsonFollowers, 200);
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
@@ -88,7 +88,7 @@ class FollowController extends AbstractController
             $jsonFollowing = array_map(function ($following) {
                 return $following['following'];
             }, $jsonFollowing);
-            return new JsonResponse(['status' => 'success', 'followings' => $jsonFollowing], 200);
+            return new JsonResponse($jsonFollowing, 200);
         } catch (\Exception $e) {
             return new JsonResponse(
                 ['status' => 'error', 'message' => $e->getMessage()],
