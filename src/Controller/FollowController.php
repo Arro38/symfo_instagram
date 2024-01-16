@@ -64,8 +64,10 @@ class FollowController extends AbstractController
         try {
             $followers = $em->getRepository(Follow::class)->findBy(['following' => $user]);
             $serializer = new Serializer([new ObjectNormalizer()]);
-            $jsonFollowers = $serializer->normalize($followers, 'json', [AbstractNormalizer::ATTRIBUTES => ['follower' => ['id', 'email']]]);
-
+            $jsonFollowers = $serializer->normalize($followers, 'json', [AbstractNormalizer::ATTRIBUTES => ['follower' => ['id', 'email', 'imageUrl', 'username']]]);
+            $jsonFollowers = array_map(function ($follower) {
+                return $follower['follower'];
+            }, $jsonFollowers);
 
             // $jsonFollowers = $serializer->serialize($followers, 'json');
             return new JsonResponse(['status' => 'success', 'followers' => $jsonFollowers], 200);
@@ -82,7 +84,10 @@ class FollowController extends AbstractController
                 'follower' => $user
             ]);
             $serializer = new Serializer([new ObjectNormalizer()]);
-            $jsonFollowing = $serializer->normalize($followings, 'json', ['attributes' => ['following' => ['id', 'email']]]);
+            $jsonFollowing = $serializer->normalize($followings, 'json', ['attributes' => ['following' => ['id', 'email', 'imageUrl', 'username']]]);
+            $jsonFollowing = array_map(function ($following) {
+                return $following['following'];
+            }, $jsonFollowing);
             return new JsonResponse(['status' => 'success', 'followings' => $jsonFollowing], 200);
         } catch (\Exception $e) {
             return new JsonResponse(
