@@ -21,14 +21,28 @@ class HomeController extends AbstractController
     public function index(EntityManagerInterface $em): JsonResponse
     {
         $user = $this->getUser();
-        // get information for my homepage 
-        // 1. get all posts from users that I follow
         $follows = $em->getRepository(Follow::class)->findBy(['follower' => $user->getId()]);
         $followings_ids = [];
         foreach ($follows as $follows) {
             $followings_ids[] = $follows->getFollowing()->getId();
         }
         $posts = $em->getRepository(Post::class)->findBy(['createdBy' => $followings_ids], ['createdAt' => 'DESC']);
+        $serializer = new Serializer([new ObjectNormalizer()]);
+        $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageUrl', 'createdAt', 'createdBy' => ['id', 'email', 'imageUrl', 'username'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl', 'username']]]]);
+        return new JsonResponse($jsonPosts, JsonResponse::HTTP_OK);
+
+    }
+
+    #[Route('/home/page/{i}', name: "app_home_page", methods: ['GET'])]
+    public function indexPage(EntityManagerInterface $em, $i): JsonResponse
+    {
+        $user = $this->getUser();
+        $follows = $em->getRepository(Follow::class)->findBy(['follower' => $user->getId()]);
+        $followings_ids = [];
+        foreach ($follows as $follows) {
+            $followings_ids[] = $follows->getFollowing()->getId();
+        }
+        $posts = $em->getRepository(Post::class)->findBy(['createdBy' => $followings_ids], ['createdAt' => 'DESC'], 10, $i * 10);
         $serializer = new Serializer([new ObjectNormalizer()]);
         $jsonPosts = $serializer->normalize($posts, 'json', ['attributes' => ['id', 'description', 'imageUrl', 'createdAt', 'createdBy' => ['id', 'email', 'imageUrl', 'username'], 'likeds' => ['user' => ['id']], 'comments' => ['id', 'content', 'createdAt', 'user' => ['id', 'email', 'imageUrl', 'username']]]]);
         return new JsonResponse($jsonPosts, JsonResponse::HTTP_OK);
