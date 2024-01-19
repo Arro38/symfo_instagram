@@ -85,43 +85,40 @@ class RegistrationController extends AbstractController
             $username = $request->request->get('username');
             $profilePicture = $request->files->get('profilePicture');
 
-            if (!isset($email, $username, $profilePicture)) {
-                return new JsonResponse(['status' => 'Missing data'], 400);
+            if (isset($email)) {
+                if (filter_var($email, FILTER_VALIDATE_EMAIL))
+                    $user->setEmail($email);
+                else
+                    return new JsonResponse(['status' => 'Invalid email'], 400);
+            }
+            if (isset($username)) {
+                if (
+                    filter_var($username, FILTER_VALIDATE_REGEXP, [
+                        'options' => [
+                            'regexp' => '/^[a-zA-Z0-9_]{3,25}$/'
+                        ]
+                    ])
+                )
+                    $user->setUsername($username);
+                else
+                    return new JsonResponse(['status' => 'Invalid username'], 400);
             }
 
-            // validate data
-            if ($email === null || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                return new JsonResponse(['status' => 'Invalid email'], 400);
+            if (isset($profilePicture)) {
+                if ($profilePicture instanceof UploadedFile)
+                    $user->setImageFile($profilePicture);
+                else
+                    return new JsonResponse(['status' => 'Invalid profile picture'], 400);
             }
-
-            if (
-                $username === null || !filter_var($username, FILTER_VALIDATE_REGEXP, [
-                    'options' => [
-                        'regexp' => '/^[a-zA-Z0-9_]{3,25}$/'
-                    ]
-                ])
-            ) {
-                return new JsonResponse(['status' => 'Invalid username'], 400);
-            }
-
-            if (!($profilePicture instanceof UploadedFile)) {
-                return new JsonResponse(['status' => 'Invalid profile picture'], 400);
-            }
-            $user->setEmail($email);
-            $user->setUsername($username);
-            $user->setImageFile($profilePicture);
             $em->persist($user);
             $em->flush();
-
             return new JsonResponse(['status' => 'User updated!'], 201);
         } catch (\Exception $e) {
-            // remove uploaded file if error
             if ($user->getImageName() !== null) {
                 unlink('images/profiles/' . $user->getImageName());
             }
             return new JsonResponse(['status' => $e->getMessage()], 500);
         }
-
     }
 
     #[Route('/api/profile/password', name: 'app_profile_password', methods: ['POST'])]
